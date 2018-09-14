@@ -46,6 +46,9 @@ public class OnsPublisherHolder implements DisposableBean {
 
     @Override
     public void destroy() throws Exception {
+        if (onsPublisher == null) {
+            return;
+        }
         onsPublisher.shutdown();
     }
 }
