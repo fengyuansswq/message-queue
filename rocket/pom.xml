@@ -20,15 +20,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.alibaba.rocketmq</groupId>
+            <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>${rocketmq.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.alibaba.rocketmq</groupId>
+            <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-common</artifactId>
-            <version>${rocketmq.version}</version>
         </dependency>
 
     </dependencies>

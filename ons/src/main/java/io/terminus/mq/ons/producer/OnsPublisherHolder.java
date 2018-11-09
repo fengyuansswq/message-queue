@@ -4,6 +4,8 @@
  */
 package io.terminus.mq.ons.producer;
 
+import com.aliyun.openservices.ons.api.transaction.LocalTransactionChecker;
+import com.aliyun.openservices.ons.api.transaction.LocalTransactionExecuter;
 import io.terminus.mq.config.MQProducerProperties;
 import io.terminus.mq.config.MQProperties;
 import io.terminus.mq.exception.MQException;
@@ -22,12 +24,18 @@ import org.springframework.stereotype.Component;
 public class OnsPublisherHolder implements DisposableBean {
 
     @Autowired
-    private MQProducerProperties producerProperties;
+    private MQProducerProperties     producerProperties;
 
     @Autowired
-    private MQProperties         mqProperties;
+    private MQProperties             mqProperties;
 
-    private OnsPublisher         onsPublisher;
+    @Autowired
+    private LocalTransactionChecker  onsLocalTransactionChecker;
+
+    @Autowired
+    private LocalTransactionExecuter onsLocalTransactionExecuter;
+
+    private OnsPublisher             onsPublisher;
 
     public void init() {
         try {
@@ -38,6 +46,8 @@ public class OnsPublisherHolder implements DisposableBean {
             String secretKey = mqProperties.getSecretKey();
 
             onsPublisher = new OnsPublisher(nameServerAddr, producerId, accessKey, secretKey, timeout);
+            onsPublisher.setOnsLocalTransactionChecker(onsLocalTransactionChecker);
+            onsPublisher.setOnsLocalTransactionExecuter(onsLocalTransactionExecuter);
             onsPublisher.start();
         } catch (MQException e) {
             throw new RuntimeException("message producer init fail");

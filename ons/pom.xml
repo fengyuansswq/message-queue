@@ -16,7 +16,6 @@
         <dependency>
             <groupId>com.aliyun.openservices</groupId>
             <artifactId>ons-client</artifactId>
-            <version>${ons.version}</version>
         </dependency>
 
         <dependency>

@@ -9,6 +9,7 @@ import io.terminus.mq.model.UniformEvent;
 
 /**
  * 统一事件发布
+ *
  * @author sean
  * @version Id:,v0.1 2018/6/8 下午12:09 sean Exp $
  * @description
@@ -35,7 +36,7 @@ public interface UniformEventPublisher extends BaseUniformEventProcessor {
     /**
      * 创建统一消息事件
      *
-     * @param topic 主题
+     * @param topic     主题
      * @param eventCode 事件码
      * @return
      */
@@ -44,7 +45,7 @@ public interface UniformEventPublisher extends BaseUniformEventProcessor {
     /**
      * 创建统一消息事件
      *
-     * @param topic 主题
+     * @param topic     主题
      * @param eventCode 事件码
      * @return
      */
@@ -53,8 +54,8 @@ public interface UniformEventPublisher extends BaseUniformEventProcessor {
     /**
      * 创建统一消息事件
      *
-     * @param topic 主题
-     * @param eventCode 事件码
+     * @param topic         主题
+     * @param eventCode     事件码
      * @param transactional 事务消息
      * @return
      */
@@ -63,31 +64,27 @@ public interface UniformEventPublisher extends BaseUniformEventProcessor {
     /**
      * 创建统一消息事件
      *
-     * @param topic 主题
-     * @param eventCode 事件码
+     * @param topic         主题
+     * @param eventCode     事件码
      * @param transactional 事务消息
      * @return
      */
     UniformEvent createUniformEvent(String topic, String eventCode, boolean transactional, long timeout);
 
     /**
-     *
-     *
-     * @param topic 主题
-     * @param eventCode 事件码
+     * @param topic         主题
+     * @param eventCode     事件码
      * @param transactional 事务消息
-     * @param payload 消息体
+     * @param payload       消息体
      * @return
      */
     UniformEvent createUniformEvent(String topic, String eventCode, boolean transactional, Object payload);
 
     /**
-     *
-     *
-     * @param topic 主题
-     * @param eventCode 事件码
+     * @param topic         主题
+     * @param eventCode     事件码
      * @param transactional 事务消息
-     * @param payload 消息体
+     * @param payload       消息体
      * @return
      */
     UniformEvent createUniformEvent(String topic, String eventCode, boolean transactional, Object payload, long timout);

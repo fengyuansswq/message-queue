@@ -1,0 +1,52 @@
+package io.terminus.mq.ons.producer.transaction;
+
+import com.aliyun.openservices.ons.api.Message;
+import com.aliyun.openservices.ons.api.transaction.LocalTransactionExecuter;
+import com.aliyun.openservices.ons.api.transaction.TransactionStatus;
+
+import io.terminus.mq.ons.util.HashUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+/**
+ * @author sean
+ * @version Id:,v0.1 2018/11/9 3:08 PM sean Exp $
+ * @description
+ */
+@Slf4j
+public class OnsLocalTransactionExecuter implements ApplicationContextAware, LocalTransactionExecuter {
+
+    @Override
+    public TransactionStatus execute(Message message, Object obj) {
+        // 消息 ID（有可能消息体一样，但消息 ID 不一样，当前消息 ID 在控制台无法查询）
+        String msgId = message.getMsgID();
+        // 消息体内容进行 crc32，也可以使用其它的如 MD5
+        long crc32Id = HashUtil.crc32Code(message.getBody());
+        // 消息 ID 和 crc32id 主要是用来防止消息重复
+        // 如果业务本身是幂等的，可以忽略，否则需要利用 msgId 或 crc32Id 来做幂等
+        // 如果要求消息绝对不重复，推荐做法是对消息体 body 使用 crc32或 md5来防止重复消息
+        Object businessServiceArgs = new Object();
+        TransactionStatus transactionStatus = TransactionStatus.Unknow;
+        try {
+            boolean isCommit = true; //businessService.execbusinessService(msgId,crc32Id);
+            if (isCommit) {
+                // 本地事务成功则提交消息
+                transactionStatus = TransactionStatus.CommitTransaction;
+            } else {
+                // 本地事务失败则回滚消息
+                transactionStatus = TransactionStatus.RollbackTransaction;
+            }
+        } catch (Exception e) {
+            log.error("Message Id:{}", msgId, e);
+        }
+        log.warn("Message Id:{}transactionStatus:{}", msgId, transactionStatus.name());
+        return transactionStatus;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        //TODO
+    }
+}

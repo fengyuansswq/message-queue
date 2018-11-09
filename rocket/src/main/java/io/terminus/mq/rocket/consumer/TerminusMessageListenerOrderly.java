@@ -4,13 +4,13 @@
  */
 package io.terminus.mq.rocket.consumer;
 
-import com.alibaba.rocketmq.client.consumer.listener.ConsumeOrderlyContext;
-import com.alibaba.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
-import com.alibaba.rocketmq.client.consumer.listener.MessageListenerOrderly;
-import com.alibaba.rocketmq.common.message.MessageExt;
 import io.terminus.mq.client.UniformEventListener;
 import io.terminus.mq.model.UniformEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext;
+import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
+import org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly;
+import org.apache.rocketmq.common.message.MessageExt;
 
 import java.util.List;
 
@@ -36,6 +36,7 @@ public class TerminusMessageListenerOrderly extends AbstractTerminusMessageListe
     @Override
     public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context) {
         try {
+            log.info("[顺序消费 -- 消费者监听器] >>> coming ...");
             UniformEvent event = resolveMessage(msgs);
             boolean success = listener.onUniformEvent(event);
             if (success) {
@@ -46,6 +47,8 @@ public class TerminusMessageListenerOrderly extends AbstractTerminusMessageListe
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
+        }finally {
+            log.info("[顺序消费 -- 消费者监听器] <<< Exit ...");
         }
     }
 }

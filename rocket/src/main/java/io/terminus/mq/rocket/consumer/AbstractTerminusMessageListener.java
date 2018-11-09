@@ -4,9 +4,9 @@
  */
 package io.terminus.mq.rocket.consumer;
 
-import com.alibaba.rocketmq.common.message.MessageExt;
 import io.terminus.mq.model.DefaultUniformEvent;
 import io.terminus.mq.model.UniformEvent;
+import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;

@@ -4,14 +4,6 @@
  */
 package io.terminus.mq.rocket.producer;
 
-import com.alibaba.rocketmq.client.exception.MQBrokerException;
-import com.alibaba.rocketmq.client.exception.MQClientException;
-import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
-import com.alibaba.rocketmq.client.producer.SendResult;
-import com.alibaba.rocketmq.client.producer.SendStatus;
-import com.alibaba.rocketmq.client.producer.TransactionMQProducer;
-import com.alibaba.rocketmq.common.message.Message;
-import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.google.common.base.Throwables;
 import io.terminus.mq.common.UniformEventPublisher;
 import io.terminus.mq.exception.MQException;
@@ -19,6 +11,14 @@ import io.terminus.mq.model.DefaultUniformEvent;
 import io.terminus.mq.model.UniformEvent;
 import io.terminus.mq.utils.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.exception.MQBrokerException;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.remoting.exception.RemotingException;
 
 /**
  * @author sean
@@ -167,7 +167,7 @@ public class RocketMQPublisher implements UniformEventPublisher {
     }
 
     protected boolean doPublishUniformEvent(UniformEvent event, Message message) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
-
+        //TODO  不支持异步回调，比较麻烦 且使用业务场景较少
         // sync
         SendResult sendResult = doSendMessage(event, message);
         if (sendResult == null) {
@@ -194,9 +194,10 @@ public class RocketMQPublisher implements UniformEventPublisher {
      * @throws InterruptedException
      */
     private SendResult doSendMessage(UniformEvent event, Message message) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
-        //        if (event.isTransactional()) {
-        //            return transactionalProducer.sendMessageInTransaction(message, event.getTransactionModel().getTranExecuter(), event.getTransactionModel().getArgs());
-        //        }
+        if (event.isTransactional()) {
+            //TODO  事务消息的校验参数 需要再斟酌一下
+            return transactionalProducer.sendMessageInTransaction(message, new Object());
+        }
         return producer.send(message, event.getTimeout());
     }
 

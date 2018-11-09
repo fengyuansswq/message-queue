@@ -8,6 +8,7 @@ import io.terminus.mq.config.MQProducerProperties;
 import io.terminus.mq.config.MQProperties;
 import io.terminus.mq.exception.MQException;
 import lombok.Data;
+import org.apache.rocketmq.client.producer.TransactionListener;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,9 @@ public class RocketPublisherHolder implements DisposableBean {
 
     @Autowired
     private MQProperties         mqProperties;
+
+    @Autowired
+    private TransactionListener transactionListener;
 
     private RocketMQPublisher    publisher;
 
@@ -48,4 +52,5 @@ public class RocketPublisherHolder implements DisposableBean {
     public void destroy() throws Exception {
         publisher.shutdown();
     }
+
 }

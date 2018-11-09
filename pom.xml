@@ -19,7 +19,7 @@
 
     <properties>
         <ons.version>1.7.5.Final</ons.version>
-        <rocketmq.version>3.2.6</rocketmq.version>
+        <rocketmq.version>4.3.1</rocketmq.version>
     </properties>
 
     <dependencies>
@@ -51,7 +51,27 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>com.aliyun.openservices</groupId>
+                <artifactId>ons-client</artifactId>
+                <version>${ons.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>${rocketmq.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-common</artifactId>
+                <version>${rocketmq.version}</version>
+            </dependency>
         </dependencies>
+
+
     </dependencyManagement>
 
     <distributionManagement>

@@ -5,6 +5,9 @@
 package io.terminus.mq.ons.producer;
 
 import com.aliyun.openservices.ons.api.*;
+import com.aliyun.openservices.ons.api.transaction.LocalTransactionChecker;
+import com.aliyun.openservices.ons.api.transaction.LocalTransactionExecuter;
+import com.aliyun.openservices.ons.api.transaction.TransactionProducer;
 import com.google.common.base.Throwables;
 import io.terminus.mq.common.UniformEventPublisher;
 import io.terminus.mq.enums.DelayTimeLevelEnum;
@@ -24,35 +27,32 @@ import java.util.Properties;
 @Slf4j
 public class OnsPublisher implements UniformEventPublisher {
 
-    /**
-     * 注册中心地址
-     */
-    private String nameServerAddr;
+    /** 注册中心地址 */
+    private String                  nameServerAddr;
 
-    /**
-     * 生产者Id
-     */
-    private String producerId;
+    /** 生产者Id */
+    private String                  producerId;
 
-    /**
-     * accessKey
-     */
-    private String accessKey;
+    /** accessKey */
+    private String                  accessKey;
 
-    /**
-     * secretKey
-     */
-    private String secretKey;
+    /** secretKey */
+    private String                  secretKey;
 
-    /**
-     * 发送的超时时间
-     */
-    private int sendTimeOut;
+    /** 发送的超时时间 */
+    private int                     sendTimeOut;
 
-    /**
-     * 生产者Id
-     */
-    private Producer producer;
+    /** 事务消息本地校验器 */
+    private LocalTransactionChecker onsLocalTransactionChecker;
+
+    /** 事务消息本地执行器 */
+    private LocalTransactionExecuter onsLocalTransactionExecuter;
+
+    /** 生产者 */
+    private Producer                producer;
+
+    /** 事务消息生产者 */
+    private TransactionProducer     transactionProducer;
 
     public OnsPublisher(String nameServerAddr, String producerId, String accessKey, String secretKey, int sendTimeOut) {
         this.nameServerAddr = nameServerAddr;
@@ -78,8 +78,13 @@ public class OnsPublisher implements UniformEventPublisher {
             // 设置 TCP 接入域名
             properties.setProperty(PropertyKeyConst.ONSAddr, nameServerAddr);
             producer = ONSFactory.createProducer(properties);
+
+            TransactionProducer transactionProducer = ONSFactory.createTransactionProducer(properties, onsLocalTransactionChecker);
             // 在发送消息前，必须调用start方法来启动Producer，只需调用一次即可
             producer.start();
+
+            transactionProducer.start();
+
         } catch (Exception e) {
             log.error("ons mq producer start fail,cause:{}", Throwables.getStackTraceAsString(e));
             throw new MQException("ons mq producer start fail");
@@ -93,9 +98,13 @@ public class OnsPublisher implements UniformEventPublisher {
         }
 
         Message message = createOnsMessage(event);
-
+        SendResult sendResult;
         try {
-            SendResult sendResult = producer.send(message);
+            if (event.isTransactional()) {
+                sendResult = transactionProducer.send(message,onsLocalTransactionExecuter,new Object());
+            } else {
+                sendResult = producer.send(message);
+            }
             log.info("消息发送，消息Id:{}，ONS消息：{}", sendResult.getMessageId(), JacksonUtils.toJson(event.getPayload()));
             return true;
         } catch (RuntimeException e) {
@@ -119,11 +128,10 @@ public class OnsPublisher implements UniformEventPublisher {
                 Long sendTime = System.currentTimeMillis() + DelayTimeLevelEnum.getEnumByLevel(event.getDelayTimeLevel()).getTimeDelay();
                 message.setStartDeliverTime(sendTime);
             }
-            if(event.getScheduleTime()!=null){
+            if (event.getScheduleTime() != null) {
                 Long scheduleTime = event.getScheduleTime().getTime();
                 message.setStartDeliverTime(scheduleTime);
             }
-
 
             return message;
         } catch (Exception e) {
@@ -208,5 +216,13 @@ public class OnsPublisher implements UniformEventPublisher {
     @Override
     public String getNameSrvAddress() {
         return nameServerAddr;
+    }
+
+    public void setOnsLocalTransactionChecker(LocalTransactionChecker onsLocalTransactionChecker) {
+        this.onsLocalTransactionChecker = onsLocalTransactionChecker;
+    }
+
+    public void setOnsLocalTransactionExecuter(LocalTransactionExecuter onsLocalTransactionExecuter) {
+        this.onsLocalTransactionExecuter = onsLocalTransactionExecuter;
     }
 }
