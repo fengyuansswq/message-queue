@@ -10,6 +10,7 @@ import io.terminus.mq.config.MQProducerProperties;
 import io.terminus.mq.config.MQProperties;
 import io.terminus.mq.exception.MQException;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Data
+@Slf4j
 public class OnsPublisherHolder implements DisposableBean {
 
     @Autowired
@@ -39,6 +41,10 @@ public class OnsPublisherHolder implements DisposableBean {
 
     public void init() {
         try {
+            if (producerProperties == null) {
+                log.info("the application does not need to produce message");
+                return;
+            }
             String producerId = producerProperties.getProducerId();
             int timeout = producerProperties.getTimeout();
             String nameServerAddr = mqProperties.getNameServer();

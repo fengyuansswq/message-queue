@@ -1,14 +1,19 @@
 package io.terminus.mq.ons.producer.transaction;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.transaction.LocalTransactionExecuter;
 import com.aliyun.openservices.ons.api.transaction.TransactionStatus;
+import com.google.common.base.Throwables;
 
-import io.terminus.mq.ons.util.HashUtil;
+import io.terminus.mq.CommonConstants;
+import io.terminus.mq.exception.MQTransactionException;
+import io.terminus.mq.utils.HashUtil;
+import io.terminus.mq.transaction.LocalTransactionService;
+import io.terminus.mq.transaction.TransactionServiceContainer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * @author sean
@@ -16,7 +21,11 @@ import org.springframework.context.ApplicationContextAware;
  * @description
  */
 @Slf4j
-public class OnsLocalTransactionExecuter implements ApplicationContextAware, LocalTransactionExecuter {
+@Component
+public class OnsLocalTransactionExecuter implements LocalTransactionExecuter {
+
+    @Autowired
+    private TransactionServiceContainer transactionServiceContainer;
 
     @Override
     public TransactionStatus execute(Message message, Object obj) {
@@ -30,7 +39,10 @@ public class OnsLocalTransactionExecuter implements ApplicationContextAware, Loc
         Object businessServiceArgs = new Object();
         TransactionStatus transactionStatus = TransactionStatus.Unknow;
         try {
-            boolean isCommit = true; //businessService.execbusinessService(msgId,crc32Id);
+            String key = message.getTopic().concat(CommonConstants.PLUS).concat(message.getTag());
+
+            LocalTransactionService localTransactionService = transactionServiceContainer.getLocalTransactionServiceMap().get(key);
+            boolean isCommit = localTransactionService.executeTransaction(msgId, crc32Id);
             if (isCommit) {
                 // 本地事务成功则提交消息
                 transactionStatus = TransactionStatus.CommitTransaction;
@@ -38,15 +50,14 @@ public class OnsLocalTransactionExecuter implements ApplicationContextAware, Loc
                 // 本地事务失败则回滚消息
                 transactionStatus = TransactionStatus.RollbackTransaction;
             }
+        } catch (MQTransactionException e) {
+            transactionStatus = TransactionStatus.RollbackTransaction;
+            log.error("Transaction execute failed ,Ons Message Id:{} ,cause = {}", msgId, Throwables.getStackTraceAsString(e));
         } catch (Exception e) {
-            log.error("Message Id:{}", msgId, e);
+            transactionStatus = TransactionStatus.RollbackTransaction;
+            log.error("Transaction execute failed ,Ons Message Id:{} ,cause = {}", msgId, Throwables.getStackTraceAsString(e));
         }
-        log.warn("Message Id:{}transactionStatus:{}", msgId, transactionStatus.name());
         return transactionStatus;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        //TODO
-    }
 }

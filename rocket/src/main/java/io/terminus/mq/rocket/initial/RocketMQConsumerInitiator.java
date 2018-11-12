@@ -16,6 +16,7 @@ import io.terminus.mq.rocket.consumer.RocketMQSubscriber;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
 
@@ -38,6 +39,10 @@ public class RocketMQConsumerInitiator implements ConsumerInitiator {
     public void onConsumerStartUp(Map<String, UniformEventListener> listeners) {
 
         try {
+            if (consumerProperties == null || CollectionUtils.isEmpty(consumerProperties.getList())) {
+                log.info("the application does not has any consume listener");
+                return;
+            }
             for (MQConsumerConfig config : consumerProperties.getList()) {
                 //1.创建消费者
 

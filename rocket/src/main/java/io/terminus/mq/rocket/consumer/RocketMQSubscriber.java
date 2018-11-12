@@ -109,6 +109,7 @@ public class RocketMQSubscriber implements UniformEventSubscriber, DisposableBea
         consumer.setPullInterval(this.getPullInterval());
         consumer.setPullThresholdForQueue(this.getPullThresholdForQueue());
 
+
         // register listener
         if (listener.getListenerType() == UniformEventListener.ListenerTypeEnum.CONCURRENTLY) {
             consumer.registerMessageListener(new TerminusMessageListenerConcurrently(listener));

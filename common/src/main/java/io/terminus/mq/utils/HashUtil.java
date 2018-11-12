@@ -1,4 +1,4 @@
-package io.terminus.mq.ons.util;
+package io.terminus.mq.utils;
 
 import java.util.zip.CRC32;
 
