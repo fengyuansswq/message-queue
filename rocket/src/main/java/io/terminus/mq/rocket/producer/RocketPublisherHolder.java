@@ -4,6 +4,7 @@
  */
 package io.terminus.mq.rocket.producer;
 
+import com.google.common.base.Throwables;
 import io.terminus.mq.config.MQProducerProperties;
 import io.terminus.mq.config.MQProperties;
 import io.terminus.mq.exception.MQException;
@@ -31,7 +32,7 @@ public class RocketPublisherHolder implements DisposableBean {
     private MQProperties         mqProperties;
 
     @Autowired
-    private TransactionListener transactionListener;
+    private TransactionListener  transactionListener;
 
     private RocketMQPublisher    publisher;
 
@@ -50,6 +51,7 @@ public class RocketPublisherHolder implements DisposableBean {
             publisher = new RocketMQPublisher(producerGroup, nameServerAddr, retryOtherBroker, retryTimesWhenFaild, timeout, maxMessageSize);
             publisher.start();
         } catch (MQException e) {
+            log.error("producer init failed ,cause ={}", Throwables.getStackTraceAsString(e));
             throw new RuntimeException("message producer init fail");
         }
     }
