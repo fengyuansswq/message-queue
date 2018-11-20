@@ -20,6 +20,8 @@ import org.apache.rocketmq.client.producer.TransactionMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
+import java.util.Map;
+
 /**
  * @author sean
  * @version Id:,v0.1 2018/6/8 下午12:08 sean Exp $
@@ -218,6 +220,12 @@ public class RocketMQPublisher implements UniformEventPublisher {
             if (event.getDelayTimeLevel() > 0) {
                 message.setDelayTimeLevel(event.getDelayTimeLevel());
             }
+
+            // 写入用户定义的消息扩展属性
+            for (Map.Entry<String, String> prop : event.getProperties().entrySet()) {
+                message.putUserProperty(prop.getKey(), prop.getValue());
+            }
+
             return message;
         } catch (Exception e) {
             throw new MQException("构建RocketMQ 消息实体失败");

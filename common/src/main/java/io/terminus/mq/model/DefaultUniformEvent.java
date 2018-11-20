@@ -4,7 +4,10 @@
  */
 package io.terminus.mq.model;
 
+import com.google.common.collect.Maps;
+
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -15,28 +18,31 @@ import java.util.UUID;
 public class DefaultUniformEvent implements UniformEvent {
 
     /** 消息ID */
-    private String  id;
+    private String              id;
 
     /** 消息主题 */
-    private String  topic;
+    private String              topic;
 
     /** 消息事件码 */
-    private String  eventCode;
+    private String              eventCode;
 
     /** 消息体 */
-    private Object  payload;
+    private Object              payload;
 
     /** 发送超时时间 */
-    private long    timeout;
+    private long                timeout;
 
     /** 延时消息等级 */
-    private int     delayTimeLevel;
+    private int                 delayTimeLevel;
 
     /** 延时消息等级 */
-    private Date    scheduleTime;
+    private Date                scheduleTime;
+
+    /** 用户级别消息附加属性 */
+    private Map<String, String> userProps = Maps.newLinkedHashMap();
 
     /** 是否是事务消息 */
-    private boolean transactional;
+    private boolean             transactional;
 
     /**
      * @param topic
@@ -129,5 +135,39 @@ public class DefaultUniformEvent implements UniformEvent {
     @Override
     public void setDelayTimeLevel(int delayTimeLevel) {
         this.delayTimeLevel = delayTimeLevel;
+    }
+
+    @Override
+    public void addProperty(String propKey, String propVal) {
+        userProps.put(propKey, propVal);
+    }
+
+    public void removeProperty(String propKey) {
+        userProps.remove(propKey);
+    }
+
+    @Override
+    public void addProperties(Map<String, String> properties) {
+        if (properties != null && properties.size() != 0) {
+            userProps.putAll(properties);
+        }
+    }
+
+    /**
+     * @param key
+     * @return
+     */
+    @Override
+    public String getProperty(String key) {
+        return userProps.get(key);
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public Map<String, String> getProperties() {
+        return userProps;
     }
 }

@@ -1,6 +1,11 @@
 package io.terminus.mq.rocket.producer.transaction;
 
+import com.google.common.base.Throwables;
+import io.terminus.mq.CommonConstants;
+import io.terminus.mq.exception.MQTransactionException;
+import io.terminus.mq.transaction.LocalTransactionService;
 import io.terminus.mq.transaction.TransactionServiceContainer;
+import io.terminus.mq.utils.HashUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.LocalTransactionState;
 import org.apache.rocketmq.client.producer.TransactionListener;
@@ -9,12 +14,7 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Throwables;
-
-import io.terminus.mq.CommonConstants;
-import io.terminus.mq.exception.MQTransactionException;
-import io.terminus.mq.transaction.LocalTransactionService;
-import io.terminus.mq.utils.HashUtil;
+import java.util.Map;
 
 /**
  * @author sean
@@ -43,7 +43,14 @@ public class RocketMQTransactionListener implements TransactionListener {
             String key = msg.getTopic().concat(CommonConstants.PLUS).concat(msg.getTags());
 
             LocalTransactionService localTransactionService = transactionServiceContainer.getLocalTransactionServiceMap().get(key);
-            boolean isCommit = localTransactionService.executeTransaction(msgId, crc32Id);
+
+            Map<String, String> checkProperties = msg.getProperties();
+
+            checkProperties.put(CommonConstants.MESSAGE_ID, msgId);
+
+            checkProperties.put(CommonConstants.MESSAGE_BODY_ENCRYPTION, String.valueOf(crc32Id));
+
+            boolean isCommit = localTransactionService.executeTransaction(checkProperties);
             if (isCommit) {
                 // 本地事务成功则提交消息
                 transactionStatus = LocalTransactionState.COMMIT_MESSAGE;
@@ -76,7 +83,14 @@ public class RocketMQTransactionListener implements TransactionListener {
             String key = msg.getTopic().concat(CommonConstants.PLUS).concat(msg.getTags());
 
             LocalTransactionService localTransactionService = transactionServiceContainer.getLocalTransactionServiceMap().get(key);
-            boolean isCommit = localTransactionService.checkTransactionStatus(msgId, crc32Id);
+
+            Map<String, String> checkProperties = msg.getProperties();
+
+            checkProperties.put(CommonConstants.MESSAGE_ID, msgId);
+
+            checkProperties.put(CommonConstants.MESSAGE_BODY_ENCRYPTION, String.valueOf(crc32Id));
+
+            boolean isCommit = localTransactionService.checkTransactionStatus(checkProperties);
             if (isCommit) {
                 //本地事务已成功则提交消息
                 transactionStatus = LocalTransactionState.COMMIT_MESSAGE;

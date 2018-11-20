@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.util.Map;
+
 /**
  * @author sean
  * @version Id:,v0.1 2018/6/8 下午4:05 sean Exp $
@@ -26,10 +28,10 @@ import org.springframework.util.Assert;
 public class DefaultMessageProducer implements MessageProducer {
 
     @Autowired
-    private MQProperties mqProperties;
+    private MQProperties          mqProperties;
 
     @Autowired
-    private OnsPublisherHolder onsPublisherHolder;
+    private OnsPublisherHolder    onsPublisherHolder;
 
     @Autowired
     private RocketPublisherHolder rocketPublisherHolder;
@@ -81,6 +83,24 @@ public class DefaultMessageProducer implements MessageProducer {
     }
 
     @Override
+    public boolean send(String topic, String eventCode, Object payload, long timeout, Map<String, String> properties) throws MQException {
+        UniformEvent event = null;
+        UniformEventPublisher publisher = null;
+        if (isOns()) {
+            publisher = onsPublisherHolder.getOnsPublisher();
+            Assert.notNull(publisher, "message publisher can not be null");
+            event = publisher.createUniformEvent(topic, eventCode, false, payload, timeout);
+            event.addProperties(properties);
+            return publisher.publishUniformEvent(event);
+        }
+        publisher = rocketPublisherHolder.getPublisher();
+        Assert.notNull(publisher, "message publisher can not be null");
+        event = publisher.createUniformEvent(topic, eventCode, false, payload, timeout);
+        event.addProperties(properties);
+        return publisher.publishUniformEvent(event);
+    }
+
+    @Override
     public boolean send(String topic, String eventCode, Object payload, long timeout, int delayTimeLevel) throws MQException {
         UniformEvent event = null;
         UniformEventPublisher publisher = null;
@@ -128,6 +148,24 @@ public class DefaultMessageProducer implements MessageProducer {
         publisher = rocketPublisherHolder.getPublisher();
         Assert.notNull(publisher, "message publisher can not be null");
         event = publisher.createUniformEvent(topic, eventCode, transactional, payload, timeout);
+        return publisher.publishUniformEvent(event);
+    }
+
+    @Override
+    public boolean send(String topic, String eventCode, boolean transactional, Object payload, long timeout, Map<String, String> properties) throws MQException {
+        UniformEvent event = null;
+        UniformEventPublisher publisher = null;
+        if (isOns()) {
+            publisher = onsPublisherHolder.getOnsPublisher();
+            Assert.notNull(publisher, "message publisher can not be null");
+            event = publisher.createUniformEvent(topic, eventCode, transactional, payload, timeout);
+            event.addProperties(properties);
+            return publisher.publishUniformEvent(event);
+        }
+        publisher = rocketPublisherHolder.getPublisher();
+        Assert.notNull(publisher, "message publisher can not be null");
+        event = publisher.createUniformEvent(topic, eventCode, transactional, payload, timeout);
+        event.addProperties(properties);
         return publisher.publishUniformEvent(event);
     }
 

@@ -2,6 +2,8 @@ package io.terminus.mq.transaction;
 
 import io.terminus.mq.exception.MQTransactionException;
 
+import java.util.Map;
+
 /**
  * @author sean
  * @version Id:,v0.1 2018/11/12 5:12 PM sean Exp $
@@ -9,7 +11,7 @@ import io.terminus.mq.exception.MQTransactionException;
  */
 public interface LocalTransactionService {
 
-    Boolean executeTransaction(String msgId, Long checkCode) throws MQTransactionException;
+    Boolean executeTransaction(Map<String, String> checkProperties) throws MQTransactionException;
 
-    Boolean checkTransactionStatus(String msgId, Long checkCode) throws MQTransactionException;
+    Boolean checkTransactionStatus(Map<String, String> checkProperties) throws MQTransactionException;
 }

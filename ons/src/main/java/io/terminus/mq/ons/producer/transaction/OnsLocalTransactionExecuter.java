@@ -1,19 +1,20 @@
 package io.terminus.mq.ons.producer.transaction;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.transaction.LocalTransactionExecuter;
 import com.aliyun.openservices.ons.api.transaction.TransactionStatus;
 import com.google.common.base.Throwables;
-
 import io.terminus.mq.CommonConstants;
 import io.terminus.mq.exception.MQTransactionException;
-import io.terminus.mq.utils.HashUtil;
 import io.terminus.mq.transaction.LocalTransactionService;
 import io.terminus.mq.transaction.TransactionServiceContainer;
+import io.terminus.mq.utils.HashUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author sean
@@ -42,7 +43,14 @@ public class OnsLocalTransactionExecuter implements LocalTransactionExecuter {
             String key = message.getTopic().concat(CommonConstants.PLUS).concat(message.getTag());
 
             LocalTransactionService localTransactionService = transactionServiceContainer.getLocalTransactionServiceMap().get(key);
-            boolean isCommit = localTransactionService.executeTransaction(msgId, crc32Id);
+
+            Map<String, String> checkProperties = new HashMap<String, String>((Map) message.getUserProperties());
+
+            checkProperties.put(CommonConstants.MESSAGE_ID, msgId);
+
+            checkProperties.put(CommonConstants.MESSAGE_BODY_ENCRYPTION, String.valueOf(crc32Id));
+
+            boolean isCommit = localTransactionService.executeTransaction(checkProperties);
             if (isCommit) {
                 // 本地事务成功则提交消息
                 transactionStatus = TransactionStatus.CommitTransaction;

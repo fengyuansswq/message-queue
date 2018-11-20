@@ -17,6 +17,7 @@ import io.terminus.mq.model.UniformEvent;
 import io.terminus.mq.utils.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -28,31 +29,31 @@ import java.util.Properties;
 public class OnsPublisher implements UniformEventPublisher {
 
     /** 注册中心地址 */
-    private String                  nameServerAddr;
+    private String                   nameServerAddr;
 
     /** 生产者Id */
-    private String                  producerId;
+    private String                   producerId;
 
     /** accessKey */
-    private String                  accessKey;
+    private String                   accessKey;
 
     /** secretKey */
-    private String                  secretKey;
+    private String                   secretKey;
 
     /** 发送的超时时间 */
-    private int                     sendTimeOut;
+    private int                      sendTimeOut;
 
     /** 事务消息本地校验器 */
-    private LocalTransactionChecker onsLocalTransactionChecker;
+    private LocalTransactionChecker  onsLocalTransactionChecker;
 
     /** 事务消息本地执行器 */
     private LocalTransactionExecuter onsLocalTransactionExecuter;
 
     /** 生产者 */
-    private Producer                producer;
+    private Producer                 producer;
 
     /** 事务消息生产者 */
-    private TransactionProducer     transactionProducer;
+    private TransactionProducer      transactionProducer;
 
     public OnsPublisher(String nameServerAddr, String producerId, String accessKey, String secretKey, int sendTimeOut) {
         this.nameServerAddr = nameServerAddr;
@@ -101,7 +102,7 @@ public class OnsPublisher implements UniformEventPublisher {
         SendResult sendResult;
         try {
             if (event.isTransactional()) {
-                sendResult = transactionProducer.send(message,onsLocalTransactionExecuter,new Object());
+                sendResult = transactionProducer.send(message, onsLocalTransactionExecuter, new Object());
             } else {
                 sendResult = producer.send(message);
             }
@@ -132,6 +133,13 @@ public class OnsPublisher implements UniformEventPublisher {
                 Long scheduleTime = event.getScheduleTime().getTime();
                 message.setStartDeliverTime(scheduleTime);
             }
+
+            // 写入用户定义的消息扩展属性
+            Properties properties = new Properties();
+            for (Map.Entry<String, String> prop : event.getProperties().entrySet()) {
+                properties.put(prop.getKey(), prop.getValue());
+            }
+            message.setUserProperties(properties);
 
             return message;
         } catch (Exception e) {

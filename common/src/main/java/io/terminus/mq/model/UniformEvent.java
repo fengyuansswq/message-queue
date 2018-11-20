@@ -6,6 +6,7 @@ package io.terminus.mq.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author sean
@@ -96,6 +97,43 @@ public interface UniformEvent extends Serializable {
     Date getScheduleTime();
 
     /**
+     * 设置消息附加属性，用户级别的属性，如果添加的属性是系统属性，会抛出异常
+     *
+     * @param propKey
+     * @param propVal
+     */
+    void addProperty(String propKey, String propVal);
+
+    /**
+     * 删除消息附加属性，用户级别的属性，如果删除的属性是系统属性，会抛出异常
+     *
+     * @param propKey
+     */
+    void removeProperty(String propKey);
+
+    /**
+     * 添加消息附加属性，用户级别的属性，如果添加的属性是系统属性，会抛出异常
+     *
+     * @param properties
+     */
+    void addProperties(Map<String, String> properties);
+
+    /**
+     * 获取用户定义的扩展属性
+     *
+     * @param key
+     * @return
+     */
+    String getProperty(String key);
+
+    /**
+     * 获取用户定义的扩展属性
+     *
+     * @return
+     */
+    Map<String, String> getProperties();
+
+    /**
      * 设置是否是事务性消息
      *
      * @param transactional
@@ -107,4 +145,6 @@ public interface UniformEvent extends Serializable {
      * @return
      */
     boolean isTransactional();
+
+
 }
