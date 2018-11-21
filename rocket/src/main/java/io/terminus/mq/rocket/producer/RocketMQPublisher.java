@@ -13,10 +13,7 @@ import io.terminus.mq.utils.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
-import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.client.producer.SendStatus;
-import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.client.producer.*;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
@@ -57,6 +54,9 @@ public class RocketMQPublisher implements UniformEventPublisher {
     /** 客户端回调线程数 */
     private int                   clientCallbackExecutorThreads = Runtime.getRuntime().availableProcessors();
 
+    /** 客户端回调线程数 */
+    private TransactionListener   transactionListener;
+
     public RocketMQPublisher(String group, String nameSrvAddress) {
         this.group = group;
         this.nameSrvAddress = nameSrvAddress;
@@ -92,6 +92,7 @@ public class RocketMQPublisher implements UniformEventPublisher {
             transactionalProducer.setSendMsgTimeout(timeout);
             transactionalProducer.setClientCallbackExecutorThreads(clientCallbackExecutorThreads);
             transactionalProducer.setMaxMessageSize(maxMessageSize);
+            transactionalProducer.setTransactionListener(transactionListener);
 
             producer.start();
             transactionalProducer.start();
@@ -270,5 +271,9 @@ public class RocketMQPublisher implements UniformEventPublisher {
     @Override
     public String getNameSrvAddress() {
         return nameSrvAddress;
+    }
+
+    public void setTransactionListener(TransactionListener transactionListener) {
+        this.transactionListener = transactionListener;
     }
 }

@@ -49,6 +49,7 @@ public class RocketPublisherHolder implements DisposableBean {
             boolean retryOtherBroker = producerProperties.isRetryAnotherBrokerWhenNotStore();
             int maxMessageSize = producerProperties.getMaxMessageSize();
             publisher = new RocketMQPublisher(producerGroup, nameServerAddr, retryOtherBroker, retryTimesWhenFaild, timeout, maxMessageSize);
+            publisher.setTransactionListener(transactionListener);
             publisher.start();
         } catch (MQException e) {
             log.error("producer init failed ,cause ={}", Throwables.getStackTraceAsString(e));

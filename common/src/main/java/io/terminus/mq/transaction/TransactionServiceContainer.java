@@ -3,10 +3,10 @@ package io.terminus.mq.transaction;
 import com.google.common.collect.Maps;
 import io.terminus.mq.CommonConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -30,12 +30,13 @@ public class TransactionServiceContainer implements ApplicationContextAware {
             log.warn("there's no local transaction service exist in applicationContext");
         }
         for (Map.Entry<String, LocalTransactionService> me : beanMap.entrySet()) {
-            TransactionService transactionService = AnnotationUtils.findAnnotation(me.getValue().getClass(), TransactionService.class);
-            if (transactionService == null) {
-                log.warn("the localTransactionService is not combined with a TransactionService annotation, beanName = {}", me.getKey());
+            String topic = me.getValue().getTopic();
+            String tag = me.getValue().getTag();
+            if (StringUtils.isBlank(topic) || StringUtils.isBlank(tag)) {
+                log.warn("the localTransactionService is not combined with a topic and a tag, beanName = {}", me.getKey());
                 continue;
             }
-            localTransactionServiceMap.put(transactionService.topic().concat(CommonConstants.PLUS).concat(transactionService.tag()), me.getValue());
+            localTransactionServiceMap.put(topic.concat(CommonConstants.PLUS).concat(tag), me.getValue());
         }
     }
 

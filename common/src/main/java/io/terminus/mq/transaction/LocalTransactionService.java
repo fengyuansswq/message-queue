@@ -11,6 +11,10 @@ import java.util.Map;
  */
 public interface LocalTransactionService {
 
+    String getTopic();
+
+    String getTag();
+
     Boolean executeTransaction(Map<String, String> checkProperties) throws MQTransactionException;
 
     Boolean checkTransactionStatus(Map<String, String> checkProperties) throws MQTransactionException;
