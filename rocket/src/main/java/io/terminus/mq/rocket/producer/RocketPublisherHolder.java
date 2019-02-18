@@ -10,6 +10,7 @@ import io.terminus.mq.config.MQProperties;
 import io.terminus.mq.exception.MQException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.producer.TransactionListener;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class RocketPublisherHolder implements DisposableBean {
 
     public void init() {
         try {
-            if (producerProperties == null) {
+            if (StringUtils.isEmpty(producerProperties.getProducerId()) || StringUtils.isEmpty(producerProperties.getProducerGroup())) {
                 log.info("the application does not need to produce message");
                 return;
             }

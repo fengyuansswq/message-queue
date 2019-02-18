@@ -11,6 +11,7 @@ import io.terminus.mq.config.MQProperties;
 import io.terminus.mq.exception.MQException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,7 @@ public class OnsPublisherHolder implements DisposableBean {
 
     public void init() {
         try {
-            if (producerProperties == null) {
+            if (StringUtils.isEmpty(producerProperties.getProducerId()) || StringUtils.isEmpty(producerProperties.getProducerGroup())) {
                 log.info("the application does not need to produce message");
                 return;
             }
