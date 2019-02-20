@@ -18,7 +18,7 @@
 
 
     <properties>
-        <ons.version>1.7.5.Final</ons.version>
+        <ons.version>1.7.9.Final</ons.version>
         <rocketmq.version>4.3.1</rocketmq.version>
     </properties>
 

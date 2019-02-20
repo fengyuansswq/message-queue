@@ -22,7 +22,7 @@ public class MQConsumerConfig {
     /** 消费消息的topic */
     private String topic;
 
-    /** 消费组名 */
+    /** 消费组名 (rocketmq用) */
     private String consumerGroup;
 
     /** 消费消息的最小线程数 */

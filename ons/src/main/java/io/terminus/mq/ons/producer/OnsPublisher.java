@@ -32,6 +32,7 @@ public class OnsPublisher implements UniformEventPublisher {
     private String                   nameServerAddr;
 
     /** 生产者Id */
+    @Deprecated
     private String                   producerId;
 
     /** accessKey */
@@ -55,9 +56,17 @@ public class OnsPublisher implements UniformEventPublisher {
     /** 事务消息生产者 */
     private TransactionProducer      transactionProducer;
 
+    @Deprecated
     public OnsPublisher(String nameServerAddr, String producerId, String accessKey, String secretKey, int sendTimeOut) {
         this.nameServerAddr = nameServerAddr;
         this.producerId = producerId;
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+        this.sendTimeOut = sendTimeOut;
+    }
+
+    public OnsPublisher(String nameServerAddr, String accessKey, String secretKey, int sendTimeOut) {
+        this.nameServerAddr = nameServerAddr;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
         this.sendTimeOut = sendTimeOut;
@@ -69,7 +78,7 @@ public class OnsPublisher implements UniformEventPublisher {
             // container 实例配置初始化
             Properties properties = new Properties();
             //在控制台创建的Producer ID
-            properties.setProperty(PropertyKeyConst.ProducerId, producerId);
+            //            properties.setProperty(PropertyKeyConst.ProducerId, producerId);
             // AccessKey 阿里云身份验证，在阿里云服务器管理控制台创建
             properties.setProperty(PropertyKeyConst.AccessKey, accessKey);
             // SecretKey 阿里云身份验证，在阿里云服务器管理控制台创建
@@ -77,7 +86,8 @@ public class OnsPublisher implements UniformEventPublisher {
             //设置发送超时时间，单位毫秒
             properties.setProperty(PropertyKeyConst.SendMsgTimeoutMillis, Integer.toString(sendTimeOut));
             // 设置 TCP 接入域名
-            properties.setProperty(PropertyKeyConst.ONSAddr, nameServerAddr);
+            //            properties.setProperty(PropertyKeyConst.ONSAddr, nameServerAddr);
+            properties.setProperty(PropertyKeyConst.NAMESRV_ADDR, nameServerAddr);
             producer = ONSFactory.createProducer(properties);
 
             TransactionProducer transactionProducer = ONSFactory.createTransactionProducer(properties, onsLocalTransactionChecker);

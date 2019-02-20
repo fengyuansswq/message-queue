@@ -17,6 +17,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MQProducerProperties {
 
     /** 生产者ID  ons用 */
+    @Deprecated
     private String  producerId;
 
     /** 生产者组名称 mq */

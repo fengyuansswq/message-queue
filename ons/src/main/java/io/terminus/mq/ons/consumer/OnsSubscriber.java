@@ -44,7 +44,7 @@ public class OnsSubscriber implements UniformEventSubscriber, DisposableBean {
     private String               nameServerAddr;
 
     /** 消费者ID */
-    private String               consumerId;
+    private String               groupId;
 
     /** accessKey */
     private String               accessKey;
@@ -69,7 +69,7 @@ public class OnsSubscriber implements UniformEventSubscriber, DisposableBean {
 
     public OnsSubscriber(String nameServerAddr, String consumerId, String accessKey, String secretKey, Integer consumeThreadNums) {
         this.nameServerAddr = nameServerAddr;
-        this.consumerId = consumerId;
+        this.groupId = consumerId;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
         this.consumeThreadNums = consumeThreadNums;
@@ -78,8 +78,9 @@ public class OnsSubscriber implements UniformEventSubscriber, DisposableBean {
 
     private void initProperties() {
         properties = new Properties();
-        properties.put(PropertyKeyConst.ONSAddr, nameServerAddr);
-        properties.put(PropertyKeyConst.ConsumerId, consumerId);
+//        properties.put(PropertyKeyConst.ONSAddr, nameServerAddr);
+        properties.put(PropertyKeyConst.NAMESRV_ADDR, nameServerAddr);
+        properties.put(PropertyKeyConst.GROUP_ID, groupId);
         properties.put(PropertyKeyConst.AccessKey, accessKey);
         properties.put(PropertyKeyConst.SecretKey, secretKey);
         properties.put(PropertyKeyConst.ConsumeThreadNums, getConsumeThreadMax(consumeThreadNums));
@@ -143,7 +144,7 @@ public class OnsSubscriber implements UniformEventSubscriber, DisposableBean {
 
     @Override
     public String getGroup() {
-        return consumerId;
+        return groupId;
     }
 
     @Override

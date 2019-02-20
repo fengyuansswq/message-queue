@@ -46,13 +46,13 @@ public class OnsPublisherHolder implements DisposableBean {
                 log.info("the application does not need to produce message");
                 return;
             }
-            String producerId = producerProperties.getProducerId();
+            //            String producerId = producerProperties.getProducerId();
             int timeout = producerProperties.getTimeout();
             String nameServerAddr = mqProperties.getNameServer();
             String accessKey = mqProperties.getAccessKey();
             String secretKey = mqProperties.getSecretKey();
 
-            onsPublisher = new OnsPublisher(nameServerAddr, producerId, accessKey, secretKey, timeout);
+            onsPublisher = new OnsPublisher(nameServerAddr, accessKey, secretKey, timeout);
             onsPublisher.setOnsLocalTransactionChecker(onsLocalTransactionChecker);
             onsPublisher.setOnsLocalTransactionExecuter(onsLocalTransactionExecuter);
             onsPublisher.start();
