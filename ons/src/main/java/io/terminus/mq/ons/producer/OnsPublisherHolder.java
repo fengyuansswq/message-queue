@@ -42,7 +42,7 @@ public class OnsPublisherHolder implements DisposableBean {
 
     public void init() {
         try {
-            if (StringUtils.isEmpty(producerProperties.getProducerId()) || StringUtils.isEmpty(producerProperties.getProducerGroup())) {
+            if (StringUtils.isEmpty(producerProperties.getProducerId()) && StringUtils.isEmpty(producerProperties.getProducerGroup())) {
                 log.info("the application does not need to produce message");
                 return;
             }
