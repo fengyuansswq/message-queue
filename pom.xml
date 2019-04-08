@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.terminus.mq</groupId>
-    <artifactId>mq-client-starter</artifactId>
+    <artifactId>message-queue</artifactId>
+    <groupId>com.sean.mq</groupId>
     <packaging>pom</packaging>
-    <version>5.1.5.RELEASE</version>
+    <version>1.0.5.RELEASE</version>
     <modules>
         <module>common</module>
         <module>ons</module>
